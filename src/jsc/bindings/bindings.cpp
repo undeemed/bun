@@ -1976,6 +1976,8 @@ bool Bun__deepMatch(
     ASSERT(subsetValue.isCell());
     // fast path for reference equality.
     if (objValue == subsetValue) return true;
+    // Functions have no enumerable own properties, so the subset walk below would match any two of them.
+    if (subsetValue.isCallable()) return false;
     VM& vm = globalObject->vm();
     JSObject* obj = objValue.getObject();
     JSObject* subsetObj = subsetValue.getObject();

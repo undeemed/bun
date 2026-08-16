@@ -3340,6 +3340,13 @@ describe("expect()", () => {
         expect(Bun.deepMatch({ a: 1 }, { a: 1, b: 2 })).toBe(true);
       });
     }
+    test("compares function values by identity", () => {
+      function foo() {}
+      function bar() {}
+      expect({ fn: foo }).toMatchObject({ fn: foo });
+      expect({ fn: foo }).not.toMatchObject({ fn: bar });
+      expect({ fn: foo }).toMatchObject({ fn: expect.any(Function) });
+    });
     test("with expect matcher", () => {
       const f = Symbol.for("foo");
       const b = Symbol.for("bar");

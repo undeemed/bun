@@ -193,16 +193,25 @@ describe("Bun.deepMatch", () => {
     });
   });
 
-  it("does not work on functions", () => {
+  it("compares functions by identity", () => {
     function foo() {}
     function bar() {}
     function baz(a) {
       return a;
     }
     expect(Bun.deepMatch(foo, foo)).toBe(true);
-    expect(Bun.deepMatch(foo, bar)).toBe(true);
-    // FIXME
-    // expect(Bun.deepMatch(foo, baz)).toBe(false);
+    expect(Bun.deepMatch(foo, bar)).toBe(false);
+    expect(Bun.deepMatch(foo, baz)).toBe(false);
+  });
+
+  it.each([
+    ["arrow function", () => 1, () => 2],
+    ["class", class A {}, class B {}],
+    ["bound function", (() => 1).bind(null), (() => 2).bind(null)],
+    ["host function", Math.max, Math.min],
+  ])("a %s on the subset side only matches itself", (_label, a, b) => {
+    expect(Bun.deepMatch({ fn: a }, { fn: a })).toBe(true);
+    expect(Bun.deepMatch({ fn: a }, { fn: b })).toBe(false);
   });
 
   describe("Invalid arguments", () => {
